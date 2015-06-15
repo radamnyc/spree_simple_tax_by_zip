@@ -9,7 +9,7 @@ Spree::TaxRate.class_eval do
     end
 
     puts "********** HERE I AM *************"
-    puts "order tax zone: #{order_tax_zone}"
+    puts "order tax zone: #{order_tax_zone.inspect}"
     puts "rate: #{rates.inspect}"
 
     # Imagine with me this scenario:
@@ -33,6 +33,27 @@ Spree::TaxRate.class_eval do
     puts "rate: #{rates.inspect}"
 
   end
+
+  def self.adjust(order, items)
+    rates = match(order.tax_zone)
+    tax_categories = rates.map(&:tax_category)
+    relevant_items, non_relevant_items = items.partition { |item| tax_categories.include?(item.tax_category) }
+    Spree::Adjustment.where(adjustable: relevant_items).tax.destroy_all # using destroy_all to ensure adjustment destroy callback fires.
+    relevant_items.each do |item|
+      relevant_rates = rates.select { |rate| rate.tax_category == item.tax_category }
+      store_pre_tax_amount(item, relevant_rates)
+      relevant_rates.each do |rate|
+        rate.adjust(order, item)
+      end
+    end
+    non_relevant_items.each do |item|
+      if item.adjustments.tax.present?
+        item.adjustments.tax.destroy_all # using destroy_all to ensure adjustment destroy callback fires.
+        item.update_columns pre_tax_amount: 0
+      end
+    end
+  end
+
 
   def potentially_applicable?(order_tax_zone)
     # If the rate's zone matches the order's tax zone, then it's applicable.
