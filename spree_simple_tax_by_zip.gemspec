@@ -3,8 +3,8 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_simple_tax_by_zip'
   s.version     = '3.0.1'
-  s.summary     = 'TODO: Add gem summary here'
-  s.description = 'TODO: Add (optional) gem description here'
+  s.summary     = 'TO allow tax rates to be filtered by zip code within a state'
+  s.description = 'TO allow tax rates to be filtered by zip code within a state'
   s.required_ruby_version = '>= 2.0.0'
 
   s.author    = 'adam rosenthal'
