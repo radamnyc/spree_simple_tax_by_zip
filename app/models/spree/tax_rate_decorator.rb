@@ -2,7 +2,13 @@ Spree::TaxRate.class_eval do
 
   def self.adjust(order, items)
     pre_filtered_rates = match(order.tax_zone)
-    rates = filter_on_tax_rate_zip_if_applicable(order.tax_address.zipcode,pre_filtered_rates)
+    if order.tax_address.nil?
+      Rails.logger.debug "there is no address yet attached this order"
+      rates = pre_filtered_rates;
+    else
+      Rails.logger.debug "we have an address to filter on"
+      rates = filter_on_tax_rate_zip_if_applicable(order.tax_address.zipcode,pre_filtered_rates)
+    end
     tax_categories = rates.map(&:tax_category)
     relevant_items, non_relevant_items = items.partition { |item| tax_categories.include?(item.tax_category) }
     Spree::Adjustment.where(adjustable: relevant_items).tax.destroy_all # using destroy_all to ensure adjustment destroy callback fires.
