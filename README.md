@@ -1,7 +1,7 @@
 SpreeSimpleTaxByZip
 ===================
 
-Introduction goes here.
+This is a quick and dirty way to have tax rates within a state be applied by zip code.  There is currently no front end on it so after you create your tax rates, you'll need to use rails console to add the comma separated zip code list to the tax rate.
 
 Installation
 ------------
